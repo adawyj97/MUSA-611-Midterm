@@ -13,7 +13,7 @@ var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{
 }).addTo(map);
 
 
-var dataset = "https://raw.githubusercontent.com/adawyj97/MUSA-611-Midterm/master/Data/eme_query.geojson";
+var dataset = "https://raw.githubusercontent.com/adawyj97/MUSA-611-Midterm/master/Data/eme_query2000.csv";
 var specimenData;
 var featureGroup;
 
@@ -95,7 +95,7 @@ var myFilter = function(feature) {
 
 $(document).ready(function() {
   $.ajax(dataset).done(function(data) {
-      specimenData = JSON.parse(data);
+      specimenData = transformData(csvtoJSON(data));
       featureGroup = L.geoJson(specimenData, {
         style: myStyle,
         filter: myFilter
