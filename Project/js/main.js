@@ -3,8 +3,8 @@ Leaflet Configuration
 ===================== */
 
 var map = L.map('map', {
-  center: [39.859357, -98.707155],
-  zoom: 5
+  center: [36.046540, -115],
+  zoom: 4
 });
 
 var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -13,43 +13,38 @@ var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{
 }).addTo(map);
 
 
-var dataset = "https://raw.githubusercontent.com/adawyj97/MUSA-611-Midterm/master/Data/eme_query2000.csv";
+var dataset = "https://raw.githubusercontent.com/adawyj97/MUSA-611-Midterm/master/Data/eme_query2000.geojson";
 var specimenData;
 var featureGroup;
+var propertyofInterest = 'Ordr';
 
-function csvtoJSON(data) {
-  var parsed = [];
-  var rows = data.split("\n");
-  for (var i=0;i<rows.length;i=i+1){
-      parsed.push(rows[i].split(','));}
-  return parsed;
-}
-
-function transformData(data) {
-  transformedData = [];
-  keys = data[0];
-  for (i=1;i<data.length;i++) {
-    newArray = [];
-    for(j=0;j<keys.length;j++) {
-      curKey = keys[j];
-      newArray[curKey] = data[i][j];
-    }
-    transformedData.push(newArray);
+function colorMap(points) {
+  var uniqueCat = [...new Set(points.features.map(function(point) {
+    return point.properties[propertyofInterest];
+}))];
+  var palettes = palette('tol-rainbow',uniqueCat.length);
+  var paletteMap = new Map();
+  for(var i=0;i<palettes.length;i++) {
+    paletteMap.set(uniqueCat[i],palettes[i]);
   }
-  return transformedData;
+  return paletteMap;
 }
 
 var myStyle = function(feature) {
-  /*
-    switch (feature.properties.COLLDAY) {
-      case 'MON':   return {color: "#EC7063"};
-      case 'TUE':   return {color: "#1D7813"};
-      case 'WED':   return {color: "#1ABC9C"};
-      case 'THU': return {color: "#426DC5"};
-      case 'FRI':   return {color: "#CA2B67"};
-        }
-        */
-        return {fillColor: 'red'};
+  var color = colorMap(specimenData).get(feature.properties[propertyofInterest]);
+  return {fillColor: '#' + color, weight: 0};
+};
+
+var mapPoints = function(specimenData) {
+  featureGroup = L.geoJson(specimenData, {
+    style: myStyle,
+    filter: myFilter,
+    pointToLayer: function(feature, latlng) {
+      return new L.CircleMarker(latlng, {
+        radius: 5,
+        fillOpacity: 0.5
+      });
+    }}).addTo(map);
 };
 
 var showResults = function() {
@@ -95,35 +90,10 @@ var myFilter = function(feature) {
 
 $(document).ready(function() {
   $.ajax(dataset).done(function(data) {
-      specimenData = transformData(csvtoJSON(data));
-      featureGroup = L.geoJson(specimenData, {
-        style: myStyle,
-        filter: myFilter
-      }).addTo(map);
+      specimenData = JSON.parse(data);
+      mapPoints(specimenData);
         });
+  $( "#nextButton" ).click(function() {
+    featureGroup.clearLayers();
       });
-
-/*
-  $.ajax(datasetMine).done(function(data) {
-    var parsedData = JSON.parse(data);
-    featureGroup = L.geoJson(parsedData, {
-      style: myStyle,
-      filter: myFilter
-    }).addTo(map);
-
-        // quite similar to _.each
-        //featureGroup.eachLayer(eachFeatureFunction);
-      });
-
-$(document).ready(function() {
-  $.ajax(dataset).done(function(data) {
-    var parsedData = JSON.parse(data);
-    featureGroup = L.geoJson(parsedData, {
-      style: myStyle,
-      filter: myFilter
-    }).addTo(map);
-
-    // quite similar to _.each
-    featureGroup.eachLayer(eachFeatureFunction);
-  });
-*/
+    });
