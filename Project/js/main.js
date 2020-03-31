@@ -12,11 +12,49 @@ var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{
 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+var slides = [
+      { title: "Title", description: "Description", poi: "Ordr" },
+      { title: "title1", description: "the first description", poi: "HoldingInstitution" },
+      { title: "title2", description: "the second description", poi: "Genus"},
+      { title: "title3", description: "the first description", poi: "IdentifiedBy"},
+      { title: "made up title", description: "made up description", poi: "Collector"}
+    ];
 
+var currentSlide = 0;
 var dataset = "https://raw.githubusercontent.com/adawyj97/MUSA-611-Midterm/master/Data/eme_query2000.geojson";
 var specimenData;
 var featureGroup;
 var propertyofInterest = 'Ordr';
+
+var loadSlide = function(slide) {
+  featureGroup.clearLayers();
+  $('#title').text(slide.title);
+  $('#description').text(slide.description);
+  propertyofInterest = slide.poi;
+  mapPoints(specimenData);
+};
+
+var next = function() {
+  if (currentSlide == slides.length - 1) {
+
+  } else {
+    currentSlide = currentSlide + 1;
+    loadSlide(slides[currentSlide]);
+    $('#previousButton').show();
+     }
+  if (currentSlide == slides.length - 1) {
+    $('#nextButton').hide();
+  }
+};
+
+var previous = function() {
+  if (currentSlide == 1) {
+    $('#previousButton').hide();
+  }
+  $('#nextButton').show();
+  currentSlide = currentSlide - 1;
+  loadSlide(slides[currentSlide]);
+};
 
 function colorMap(points) {
   var uniqueCat = [...new Set(points.features.map(function(point) {
@@ -76,14 +114,6 @@ var eachFeatureFunction = function(layer) {
 
 var myFilter = function(feature) {
   return true;
-  /*
-  if (feature.properties.COLLDAY != ' ') {
-    return true;
-  } else {
-    return false;
-  }
-  */
-
 };
 
 
@@ -94,6 +124,9 @@ $(document).ready(function() {
       mapPoints(specimenData);
         });
   $( "#nextButton" ).click(function() {
-    featureGroup.clearLayers();
+    next();
       });
+  $("#previousButton").click(function() {
+    previous();
+  });
     });
