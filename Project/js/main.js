@@ -13,11 +13,14 @@ var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{
 }).addTo(map);
 
 var slides = [
-      { title: "Title", description: "Description", poi: "Ordr", legendTitle: "Order of the Insect"},
-      { title: "title1", description: "the first description", poi: "HoldingInstitution", legendTitle: "Holding Institution"},
-      { title: "title2", description: "the second description", poi: "MicroHabitat", legendTitle: "Microhabitat of the Insect"},
-      { title: "title3", description: "the first description", poi: "IdentifiedBy", legendTitle: "Identified by"},
-      { title: "made up title", description: "made up description", poi: "Collector", legendTitle: "Collected by"}
+      { title: "Essig Museum Collecion",
+        description: "Here is a map of the insect specimen collection of the Essig Museum. Due to the huge size of the collection, only specimens collected in the past 20 years are shown. The colors of the circle markers correspond to the orders of the insects. The ten orders that most frequently occur in the specimens are shown in the legend.",
+        poi: "Ordr", legendTitle: "Order of the Insect"},
+      { title: "Essig Museum Collecion", description: "The colors of the circle markers now correspond to the holding institutions of the specimens. The legend is sorted by the number of specimens holded by the institution in this collection.", poi: "HoldingInstitution", legendTitle: "Holding Institution"},
+      { title: "Essig Museum Collecion", description: "The colors of the circle markers now correspond to the identifiers of species of the specimens. The legend shows the identifiers who identified the top ten numbers of specimens in this collection.", poi: "IdentifiedBy", legendTitle: "Identified by"},
+      { title: "Essig Museum Collecion", description: "The colors of the circle markers now correspond to the collectors of the specimens. The legend shows the collectors who collected the top ten numbers of specimens in this collection.", poi: "Collector", legendTitle: "Collected by"},
+      { title: "Essig Museum Collecion", description: "The colors of the circle markers now correspond to the microhabitats of the insects. The legend shows the ten most common microhabitats in the collection. Since most of specimens don't have a microhabitat specified, the view is set to one specimens whose microhabitat is debris.", poi: "MicroHabitat", legendTitle: "Microhabitat of the Insect",
+      bounds:  [[31.590460, -111.128960],[31.353965, -110.094728]]}
     ];
 
 var currentSlide = 0;
@@ -27,6 +30,9 @@ var featureGroup;
 var propertyofInterest = 'Ordr';
 
 var loadSlide = function(slide) {
+  if ("bounds" in slide) {
+    map.fitBounds(slide.bounds);
+  }
   featureGroup.clearLayers();
   $('#title').text(slide.title);
   $('#description').text(slide.description);
