@@ -27,6 +27,24 @@ p.main {
     font-size: 16px;
 }
 
+#previousButton {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f1f1f1;
+  color: black;
+  border: none;
+}
+
+#nextButton {
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  border: none;
+}
+
 .legend {
   position: absolute;
   top: 12px;
