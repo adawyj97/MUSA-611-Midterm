@@ -13,11 +13,11 @@ var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{
 }).addTo(map);
 
 var slides = [
-      { title: "Title", description: "Description", poi: "Ordr" },
-      { title: "title1", description: "the first description", poi: "HoldingInstitution" },
-      { title: "title2", description: "the second description", poi: "Genus"},
-      { title: "title3", description: "the first description", poi: "IdentifiedBy"},
-      { title: "made up title", description: "made up description", poi: "Collector"}
+      { title: "Title", description: "Description", poi: "Ordr", legendTitle: "Order of the Insect"},
+      { title: "title1", description: "the first description", poi: "HoldingInstitution", legendTitle: "Holding Institution"},
+      { title: "title2", description: "the second description", poi: "MicroHabitat", legendTitle: "Microhabitat of the Insect"},
+      { title: "title3", description: "the first description", poi: "IdentifiedBy", legendTitle: "Identified by"},
+      { title: "made up title", description: "made up description", poi: "Collector", legendTitle: "Collected by"}
     ];
 
 var currentSlide = 0;
@@ -30,8 +30,25 @@ var loadSlide = function(slide) {
   featureGroup.clearLayers();
   $('#title').text(slide.title);
   $('#description').text(slide.description);
+  $('.legend-title').text(slide.legendTitle);
   propertyofInterest = slide.poi;
   mapPoints(specimenData);
+};
+
+var findtenMost = function(data) {
+  var uni = [...new Set(data.features.map(function(point) {
+    return point.properties[propertyofInterest]}))];
+  uni = _.reject(uni, function(element) {
+    return element == undefined || element == 'undetermined';
+  });
+  if (uni.length <= 10) {
+    return uni;
+  } else {
+    var sorted =  _.sortBy(uni, function(value) {
+      return _.where(specimenData, {propertyofInterest:value}).length;
+    });
+    return sorted.slice(0, 10);
+  }
 };
 
 var next = function() {
@@ -60,7 +77,7 @@ function colorMap(points) {
   var uniqueCat = [...new Set(points.features.map(function(point) {
     return point.properties[propertyofInterest];
 }))];
-  var palettes = palette('tol-rainbow',uniqueCat.length);
+  var palettes = palette('mpn65',uniqueCat.length);
   var paletteMap = new Map();
   for(var i=0;i<palettes.length;i++) {
     paletteMap.set(uniqueCat[i],palettes[i]);
@@ -82,7 +99,23 @@ var mapPoints = function(specimenData) {
         radius: 5,
         fillOpacity: 0.5
       });
-    }}).addTo(map);
+    },
+    onEachFeature: function (feature, layer) {
+         layer.bindPopup(propertyofInterest + ": " + feature.properties[propertyofInterest]);
+     }}).addTo(map);
+   legendList = findtenMost(specimenData);
+   for (i=0;i<10;i++) {
+     var selector = ".legend-labels > li:nth-child(" + String(i+1) + ")";
+     if (i>legendList.length-1) {
+       $(selector)[0].lastChild.nodeValue = "";
+       $(selector).find("span").attr('style', '');
+     } else {
+       var curLabel = legendList[i];
+       $(selector)[0].lastChild.nodeValue = curLabel;
+       var legendColor = colorMap(specimenData).get(curLabel);
+       $(selector).find("span").attr('style', 'background:#'+ legendColor);
+     }
+   }
 };
 
 var showResults = function() {
