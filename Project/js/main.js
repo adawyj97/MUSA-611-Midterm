@@ -99,7 +99,6 @@ var myStyle = function(feature) {
 var mapPoints = function(specimenData) {
   featureGroup = L.geoJson(specimenData, {
     style: myStyle,
-    filter: myFilter,
     pointToLayer: function(feature, latlng) {
       return new L.CircleMarker(latlng, {
         radius: 5,
@@ -123,39 +122,6 @@ var mapPoints = function(specimenData) {
      }
    }
 };
-
-var showResults = function() {
-  /* =====================
-  This function uses some jQuery methods that may be new. $(element).hide()
-  will add the CSS "display: none" to the element, effectively removing it
-  from the page. $(element).show() removes "display: none" from an element,
-  returning it to the page. You don't need to change this part.
-  ===================== */
-  // => <div id="intro" css="display: none">
-  $('#intro').hide();
-  // => <div id="results">
-  $('#results').show();
-};
-
-
-var eachFeatureFunction = function(layer) {
-  layer.on('click', function (event) {
-    /* =====================
-    The following code will run every time a layer on the map is clicked.
-    Check out layer.feature to see some useful data about the layer that
-    you can use in your application.
-    ===================== */
-    //console.log(layer.feature.properties.COLLDAY);
-    $('.day-of-week').text(layer.feature.properties.COLLDAY);
-    showResults();
-  });
-};
-
-var myFilter = function(feature) {
-  return true;
-};
-
-
 
 $(document).ready(function() {
   $.ajax(dataset).done(function(data) {
